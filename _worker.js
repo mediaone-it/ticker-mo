@@ -1,6 +1,15 @@
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const corsHeaders = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET, OPTIONS",
+      "access-control-allow-headers": "Content-Type, Accept",
+      "access-control-max-age": "86400"
+    };
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
     if (url.pathname === "/api/adnkronos") {
       try {
         const key = "adnkronos.json";
@@ -16,12 +25,19 @@ export default {
         }
 
         return new Response(body, {
-          headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
+          headers: {
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "no-store",
+            ...corsHeaders
+          }
         });
       } catch (e) {
         return new Response(JSON.stringify({ error: String(e) }), {
           status: 500,
-          headers: { "content-type": "application/json; charset=utf-8" }
+          headers: {
+            "content-type": "application/json; charset=utf-8",
+            ...corsHeaders
+          }
         });
       }
     }
